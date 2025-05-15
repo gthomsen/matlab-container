@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Accept the X11 display to use, though default to :102.
+DISPLAY=${1:-:102}
+
+# Notes:
+#
+# - Use host networking so the container's interface has the same MAC as the
+#   license that was issued.
+# - Assume the license is located at ${HOME}/matlab2024b/license.lic on the
+#   host.
+# - Force the specification of the 'DISPLAY' environment variable so regardless
+#   of how we start the container's 'matlab' command it will route graphics
+#   there.
+#
+#   NOTE: VNC needs to be running before the first graphics command is issued
+#         otherwise MATLAB will need to be restarted.
+#
+podman run \
+    -it \
+    --rm \
+    --network=host \
+    -e DISPLAY=${DISPLAY} \
+    -v ${HOME}/matlab2024b/license.lic:/licenses/license.lic \
+    -v ${HOME}/.emacs.d:/home/gthomsen/.emacs.d \
+    -v ${HOME}/code:/code \
+    -e MLM_LICENSE_FILE=/licenses/license.lic \
+    --shm-size=512M \
+    personal-matlab:r2024b
